@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* global styles for html, body, page wrapper, etc... */
 
 #__next {
