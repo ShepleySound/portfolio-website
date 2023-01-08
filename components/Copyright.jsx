@@ -4,10 +4,10 @@ import MuiLink from '@mui/material/Link';
 
 export default function Copyright() {
   return (
-    <Typography variant="body2" color="text.secondary" align="center">
+    <Typography variant='body2' color='text.secondary' align='center'>
       {'Copyright © '}
-      <MuiLink color="inherit" href="https://mui.com/">
-        Your Website
+      <MuiLink color='inherit' href='https://shepleysound.com/'>
+        Robert Shepley
       </MuiLink>{' '}
       {new Date().getFullYear()}.
     </Typography>

@@ -1,0 +1,11 @@
+/* global styles for html, body, page wrapper, etc... */
+
+#__next {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* footer {
+  margin-top: auto;
+} */
