@@ -26,7 +26,7 @@ export default function Home() {
             Software Developer, audio engineer, cat enthusiast
           </h1>
           <p className='mt-6 text-base text-zinc-600 dark:text-zinc-400'>
-            I'm Robert Shepley, a software developer based in Seattle,
+            I&apos;m Robert Shepley, a software developer based in Seattle,
             Washington. I was an audio engineer with the US Army Bands for 6
             years, and I currently volunteer with various local nonprofits as a
             web developer.
