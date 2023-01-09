@@ -1,41 +1,38 @@
-import * as React from 'react';
-import PropTypes from 'prop-types';
+import { useEffect, useRef } from 'react';
 import Head from 'next/head';
-import { ThemeProvider } from '@mui/material/styles';
-import CssBaseline from '@mui/material/CssBaseline';
-import { CacheProvider } from '@emotion/react';
-import theme from '../src/theme';
-import createEmotionCache from '../src/createEmotionCache';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import '../styles/global.css';
 
-// Client-side cache, shared for the whole session of the user in the browser.
-const clientSideEmotionCache = createEmotionCache();
+function usePrevious(value) {
+  let ref = useRef();
 
-export default function MyApp(props) {
-  const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+
+  return ref.current;
+}
+export default function MyApp({ Component, pageProps, router }) {
+  let previousPathname = usePrevious(router.pathname);
 
   return (
-    <CacheProvider value={emotionCache}>
+    <>
       <Head>
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
-      <ThemeProvider theme={theme}>
-        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-        <CssBaseline />
+      <div className='fixed inset-0 flex justify-center sm:px-8'>
+        <div className='flex w-full max-w-7xl lg:px-8'>
+          <div className='w-full bg-white ring-1 ring-zinc-100 dark:bg-zinc-900 dark:ring-zinc-300/20' />
+        </div>
+      </div>
+      <div className='relative'>
         <Header />
         <main>
-          <Component {...pageProps} />
+          <Component previousPathname={previousPathname} {...pageProps} />
         </main>
         <Footer />
-      </ThemeProvider>
-    </CacheProvider>
+      </div>
+    </>
   );
 }
-
-MyApp.propTypes = {
-  Component: PropTypes.elementType.isRequired,
-  emotionCache: PropTypes.object,
-  pageProps: PropTypes.object.isRequired,
-};
