@@ -1,21 +1,60 @@
 import * as React from 'react';
 import Document, { Html, Head, Main, NextScript } from 'next/document';
-import createEmotionServer from '@emotion/server/create-instance';
-import theme, { roboto } from '../src/theme';
-import createEmotionCache from '../src/createEmotionCache';
+
+const modeScript = `
+  let darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+
+  updateMode()
+  darkModeMediaQuery.addEventListener('change', updateModeWithoutTransitions)
+  window.addEventListener('storage', updateModeWithoutTransitions)
+
+  function updateMode() {
+    let isSystemDarkMode = darkModeMediaQuery.matches
+    let isDarkMode = window.localStorage.isDarkMode === 'true' || (!('isDarkMode' in window.localStorage) && isSystemDarkMode)
+
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark')
+    } else {
+      document.documentElement.classList.remove('dark')
+    }
+
+    if (isDarkMode === isSystemDarkMode) {
+      delete window.localStorage.isDarkMode
+    }
+  }
+
+  function disableTransitionsTemporarily() {
+    document.documentElement.classList.add('[&_*]:!transition-none')
+    window.setTimeout(() => {
+      document.documentElement.classList.remove('[&_*]:!transition-none')
+    }, 0)
+  }
+
+  function updateModeWithoutTransitions() {
+    disableTransitionsTemporarily()
+    updateMode()
+  }
+`;
 
 export default class MyDocument extends Document {
   render() {
     return (
-      <Html lang='en' className={roboto.className}>
+      <Html lang='en' className='h-full'>
         <Head>
-          {/* PWA primary color */}
-          <meta name='theme-color' content={theme.palette.primary.main} />
+          <script dangerouslySetInnerHTML={{ __html: modeScript }} />
+          <link
+            rel='alternate'
+            type='application/rss+xml'
+            href={`${process.env.NEXT_PUBLIC_SITE_URL}/rss/feed.xml`}
+          />
+          <link
+            rel='alternate'
+            type='application/feed+json'
+            href={`${process.env.NEXT_PUBLIC_SITE_URL}/rss/feed.json`}
+          />
           <link rel='shortcut icon' href='/favicon.ico' />
-          <meta name='emotion-insertion-point' content='' />
-          {this.props.emotionStyleTags}
         </Head>
-        <body>
+        <body className='flex h-full flex-col bg-zinc-50 dark:bg-black '>
           <Main />
           <NextScript />
         </body>
@@ -23,62 +62,3 @@ export default class MyDocument extends Document {
     );
   }
 }
-
-// `getInitialProps` belongs to `_document` (instead of `_app`),
-// it's compatible with static-site generation (SSG).
-MyDocument.getInitialProps = async (ctx) => {
-  // Resolution order
-  //
-  // On the server:
-  // 1. app.getInitialProps
-  // 2. page.getInitialProps
-  // 3. document.getInitialProps
-  // 4. app.render
-  // 5. page.render
-  // 6. document.render
-  //
-  // On the server with error:
-  // 1. document.getInitialProps
-  // 2. app.render
-  // 3. page.render
-  // 4. document.render
-  //
-  // On the client
-  // 1. app.getInitialProps
-  // 2. page.getInitialProps
-  // 3. app.render
-  // 4. page.render
-
-  const originalRenderPage = ctx.renderPage;
-
-  // You can consider sharing the same Emotion cache between all the SSR requests to speed up performance.
-  // However, be aware that it can have global side effects.
-  const cache = createEmotionCache();
-  const { extractCriticalToChunks } = createEmotionServer(cache);
-
-  ctx.renderPage = () =>
-    originalRenderPage({
-      enhanceApp: (App) =>
-        function EnhanceApp(props) {
-          return <App emotionCache={cache} {...props} />;
-        },
-    });
-
-  const initialProps = await Document.getInitialProps(ctx);
-  // This is important. It prevents Emotion to render invalid HTML.
-  // See https://github.com/mui/material-ui/issues/26561#issuecomment-855286153
-  const emotionStyles = extractCriticalToChunks(initialProps.html);
-  const emotionStyleTags = emotionStyles.styles.map((style) => (
-    <style
-      data-emotion={`${style.key} ${style.ids.join(' ')}`}
-      key={style.key}
-      // eslint-disable-next-line react/no-danger
-      dangerouslySetInnerHTML={{ __html: style.css }}
-    />
-  ));
-
-  return {
-    ...initialProps,
-    emotionStyleTags,
-  };
-};
