@@ -1,12 +1,10 @@
-import { AppBar, Toolbar, Typography, Box, IconButton } from '@mui/material';
-import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Popover, Transition } from '@headlessui/react';
 import clsx from 'clsx';
 import { Container } from './Container';
 
-import { Fragment, useEffect, useRef } from 'react';
+import { Fragment } from 'react';
 
 function CloseIcon(props) {
   return (
